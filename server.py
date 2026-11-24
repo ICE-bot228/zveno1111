@@ -20,7 +20,7 @@ import crypto
 # ═══════════════════════════════════════════════════════════
 #  НАСТРОЙКИ
 # ═══════════════════════════════════════════════════════════
-PORT = 8000
+PORT = int(os.environ.get("PORT", 8000))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, "zvenoback.db")
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
@@ -1567,17 +1567,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
 # ═══════════════════════════════════════════════════════════
 #  ЗАПУСК
 # ═══════════════════════════════════════════════════════════
-def find_free_port(start=8000, attempts=20):
-    import socket as _s
-    for p in range(start, start + attempts):
-        try:
-            s = _s.socket(_s.AF_INET, _s.SOCK_STREAM)
-            s.setsockopt(_s.SOL_SOCKET, _s.SO_REUSEADDR, 1)
-            s.bind(("127.0.0.1", p)); s.close(); return p
-        except OSError:
-            continue
-    return start
-
 def main():
     if os.name == "nt":
         os.system("")
@@ -1591,19 +1580,7 @@ def main():
     print(f"  ✓ Владелец: {OWNER_EMAIL}")
     print(f"  ✓ Эмодзи: {len(REGULAR_EMOJI)} обычных + {len(ELITE_EMOJI)} элитных")
 
-    global PORT
-    PORT = find_free_port(PORT)
-
-    try:
-        import socket as _s
-        hostname = _s.gethostname()
-        local_ip = _s.gethostbyname(hostname)
-        print(f"  Локальный IP: {local_ip}")
-    except Exception:
-        local_ip = "?"
-
-    print(f"  Локально: http://127.0.0.1:{PORT}")
-    print(f"  Для друзей: http://{local_ip}:{PORT}")
+    print(f"  Запуск на порту: {PORT}")
     print("=" * 60)
 
     socketserver.TCPServer.allow_reuse_address = True
@@ -1614,7 +1591,7 @@ def main():
             except KeyboardInterrupt:
                 print("\n  Остановлено.")
     except OSError as e:
-        print(f"  [!] Порт {PORT}: {e}")
+        print(f"  [!] Ошибка порта {PORT}: {e}")
 
 if __name__ == "__main__":
     main()
